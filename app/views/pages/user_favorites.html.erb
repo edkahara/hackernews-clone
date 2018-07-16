@@ -1,0 +1,80 @@
+<%= provide(:page_title, "#{@user.username}'s favorites") %>
+
+<nav id="profile-nav">
+  <div class="navbar-header">
+    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myActivity">
+      <span class="icon-bar"></span>
+      <span class="icon-bar"></span>
+    </button>
+  </div>
+  <div class="row">
+    <div class="col-md-10 col-md-offset-1">
+      <div class="collapse navbar-collapse" id="myActivity">
+        <ul class="nav navbar-nav">
+          <li data-index="submissions"><a href="#submissions">Submissions</a></li>
+          <li data-index="comments"><a href="#comments">Comments</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</nav>
+<section class="content" data-index="submissions">
+  <table>
+    <tbody>
+      <% if @liked_submissions.count > 0 %>
+        <% @liked_submissions.each do |submission| %>
+          <tr class="post">
+            <td>
+              <% if user_signed_in? && (current_user.voted_for? submission) %>
+                <%= awesome_link('fa fa-caret-up fa-2x used', unlike_submission_path(submission), method: :put) %>
+              <% else %>
+                <%= awesome_link('fa fa-caret-up fa-2x', like_submission_path(submission), method: :put) %>
+              <% end %>
+              <%= link_to submission.title, submission.url, class: "title" %>
+              <%= link_to "(#{submission.url})", submission.url, target: "_blank" %>
+            </td>
+            <tr class="post">
+              <td> <p><%= submission.get_upvotes.size %> points by <%= submission.user.username %> <%= time_ago_in_words(submission.created_at) %> ago | <%= link_to "#{submission.comments.count} comments", submission %> </p></td>
+            </tr>
+          </tr>
+        <% end %>
+      <% else %>
+        <p><%= @user.username %> hasn't added any favorite submissions yet</p>
+      <% end %>
+    </tbody>
+  </table>
+</section>
+<section class="content" data-index="comments">
+  <table>
+    <tbody>
+      <% if @liked_comments.count > 0 %>
+        <% @liked_comments.each do |comment| %>
+          <tr class="post">
+            <td>
+              <div class="comments-wrapper clearfix">
+                <div class="null-left">
+                  <% if user_signed_in? && (current_user.voted_for? comment) %>
+                    <%= awesome_link('fa fa-caret-up fa-2x used', unlike_comment_path(comment), method: :put) %>
+                  <% else %>
+                    <%= awesome_link('fa fa-caret-up fa-2x', like_comment_path(comment), method: :put) %>
+                  <% end %>
+                  <p><small> <%= comment.user.username %> <strong><%= time_ago_in_words(comment.created_at) %></strong> ago | <%= link_to "on: {Submission.find(comment.submission_id)}", Submission.find(comment.parent_id) %></small></p>
+                  <p class="lead">
+                    <%= comment.body %>
+                  </p>
+                  <p><%= comment.get_upvotes.size %> points</p>
+                </div>
+              </div>
+
+              <% if comment.user == current_user %>
+                <%= link_to 'delete', comment, method: :delete, data: { confirm: 'are you sure?'} %>
+              <% end %>
+            </td>
+          </tr>
+        <% end %>
+      <% else %>
+        <p><%= @user.username %> hasn't added any favorite comments yet</p>
+      <% end %>
+    </tbody>
+  </table>
+</section>

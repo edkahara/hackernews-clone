@@ -1,0 +1,33 @@
+<li>
+  <div class="comments-wrapper clearfix">
+    <div class="null-left">
+      <% if user_signed_in? && (current_user.voted_for? comment) %>
+        <%= awesome_link('fa fa-caret-up fa-2x used', unlike_comment_path(comment), method: :put) %>
+      <% else %>
+        <%= awesome_link('fa fa-caret-up fa-2x', like_comment_path(comment), method: :put) %>
+      <% end %>
+      <p><small> <%= link_to comment.user.username, "/#{comment.user.username}" %> <strong><%= time_ago_in_words(comment.created_at) %></strong> ago </small></p>
+      <p class="lead">
+        <% if user_signed_in? && comment.user == current_user %>
+          <%= best_in_place comment, :body, :as => :textarea, :ok_button => 'Save', :cancel_button => 'Cancel' %>
+        <% else %>
+          <%= comment.body %>
+        <% end %>
+      </p>
+      <p><%= comment.get_upvotes.size %> points</p>
+    </div>
+  </div>
+
+  <% if comment.user == current_user %>
+    <%= link_to 'delete', comment, method: :delete, data: { confirm: 'are you sure?'} %>
+  <% end %>
+
+  <%= form_for [comment, Comment.new] do |f| %>
+    <%= f.text_area :body, placeholder: "Add a reply" %><br/>
+    <%= f.submit "add reply"  %>
+  <% end %>
+
+  <ul>
+    <%= render(partial: 'comments/comment', collection: comment.comments) %>
+  </ul>
+</li>

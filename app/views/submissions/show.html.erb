@@ -1,0 +1,23 @@
+<% provide(:page_title, @submission.title) %>
+
+<div class="page-header">
+  <h4>
+    <% if user_signed_in? && (current_user.voted_for? @submission) %>
+      <%= awesome_link('fa fa-caret-up fa-2x used', unlike_submission_path(@submission), method: :put) %>
+    <% else %>
+      <%= awesome_link('fa fa-caret-up fa-2x', like_submission_path(@submission), method: :put) %>
+    <% end %>
+    <%= best_in_place @submission, :title, :as => :textarea, :ok_button => 'Save', :cancel_button => 'Cancel' %>
+    <a href="<%= @submission.url %>"><%= best_in_place @submission, :url %></a>
+  </h4>
+  <p><%= @submission.get_upvotes.size %> points by <%= @submission.user.username %> <%= time_ago_in_words(@submission.created_at) %> ago | <%= link_to "#{@submission.comments.count} comments", @submission %> </p>
+  <br>
+  <%= form_for [@submission, Comment.new] do |f| %>
+    <%= f.text_area :body, placeholder: "Add a comment" %>
+    <br>
+    <%= f.submit "add comment" %>
+  <% end %>
+  <ul id="comments">
+    <%= render(partial: 'comments/comment', collection: @submission.comments) %>
+  </ul>
+</div>

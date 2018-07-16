@@ -1,0 +1,30 @@
+<%= provide(:page_title, "#{@user.username}'s comments") %>
+
+<table>
+  <tbody>
+    <% @user_comments.each do |comment| %>
+      <tr class="post">
+        <td>
+          <div class="comments-wrapper clearfix">
+            <div class="null-left">
+              <% if user_signed_in? && (current_user.voted_for? comment) %>
+                <%= awesome_link('fa fa-caret-up fa-2x used', unlike_comment_path(comment), method: :put) %>
+              <% else %>
+                <%= awesome_link('fa fa-caret-up fa-2x', like_comment_path(comment), method: :put) %>
+              <% end %>
+              <p><small> <%= link_to @user.username, "/#{@user.username}" %> <strong><%= time_ago_in_words(comment.created_at) %></strong> ago | <%= link_to "on: {Submission.find(comment.submission_id)}", Submission.find(comment.parent_id) %></small></p>
+              <p class="lead">
+                <%= comment.body %>
+              </p>
+              <p><%= comment.get_upvotes.size %> points</p>
+            </div>
+          </div>
+
+          <% if comment.user == current_user %>
+            <%= link_to 'delete', comment, method: :delete, data: { confirm: 'are you sure?'} %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
